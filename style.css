@@ -1,0 +1,80 @@
+.row.game-board-row{
+    text-align: center;
+  }
+  
+  .s8.col.game-board{  
+    border: solid 20px #8d6e63;
+    border-radius: 5px;  
+    background-image: url(http://www.powerpointhintergrund.com/uploads/2017/09/blank-chalkboard-background-images-pictures--becuo-21.jpeg);
+  }
+  
+  .square.middle{
+    border-left: solid 2px;
+    border-right: solid 2px;
+  }
+  
+  .square.center{
+    border-top: solid 2px;
+    border-bottom: solid 2px;
+  }
+  
+  .col.s4.square{
+    height: 0;
+    padding-bottom: 30%;
+    font-family: 'Love Ya Like A Sister', cursive;
+    color: white;
+    border-color: black;
+    font-size: 8em;
+  }
+  
+  .row.board-row{
+    margin-bottom: 0px;
+  }
+  
+  .cover{
+    width: 100%;
+    height: 100%;
+    padding-bottom: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background: black;
+    opacity: 0.6;
+  }
+  
+  .col.s8.offset-s2.new-game{
+    opacity: 1;
+    margin-top: 105px;
+    background: red ;
+    padding-bottom: 50%;
+  }
+  
+  .col.s8.square{
+    height: 0;
+    padding-bottom: 88.5%;
+    font-family: 'Love Ya Like A Sister', cursive;
+    color: white;
+    border-color: black;
+    font-size: 8em;
+  }
+  
+  .col.s8.square.prompt{
+    height: 0;
+    font-family: 'Love Ya Like A Sister', cursive;
+    color: white;
+    border-color: black;
+    font-size: 2em;
+  }
+  
+  .col.s8.square.prompt div{
+    font-family: 'Love Ya Like A Sister', cursive;
+    margin-top: 40px;
+  }
+  
+  .col.s8.square.prompt a{
+    color: white;
+  }
+  
+  .col.symbol{
+    font-size: 3em;
+  }
