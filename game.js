@@ -17,11 +17,15 @@ var  WIN_COMBINATIONS = [
   ];
 
 //player
-function player(cpu, symbol){
-  this.score = 0;
-  this.cpu = cpu;
-  this.symbol = symbol;
-  this.roll = Math.random();
+class player{
+  constructor(cpu, symbol, name){
+    this.score = 0;
+    this.cpu = cpu;
+    this.symbol = symbol;
+    this.roll = Math.random();
+    this.moves = [];
+    this.name = name;
+  }  
 }
 //READY EVENT
 $('doccument').ready(function(){
@@ -56,7 +60,6 @@ function addSymbolSelectHandler(){
 function move(tile){
   console.log(tile + ' was clicked');
   if(!squareTaken(tile)){
-    console.log('square is not taken');
     takeSquare(tile, CURRENT_PLAYER.symbol);
     togglePlayer();
   }
@@ -66,18 +69,28 @@ function move(tile){
 }
 
 function isGameOver(){
+  let winner = playerHasWon();
   if(gameIsDraw()){
     console.log('Game is a draw.');
     return true;
-  }else if(playerHasWon()){
-    console.log('a player has won.');
+  }else if(winner != null){
+    console.log(winner.name + ' has won the game!');
+    winner.score += 1;
     return true;
   }
     return false;
 }
 
 function playerHasWon(){
-  return false
+  let winner = null;
+  PLAYERS.forEach(function(player){
+    WIN_COMBINATIONS.forEach(function(combo){
+      if (combo.every(square => player.moves.indexOf(square.toString()) > -1)){
+        winner = player;
+      }
+    });
+  });
+  return winner;
 }
 
 function gameIsDraw(){
@@ -87,12 +100,13 @@ function gameIsDraw(){
 }
 
 function togglePlayer(){
-  CURRENT_PLAYER = CURRENT_PLAYER == PLAYERS[0] ? PLAYERS[1] : PLAYERS[0];
+  CURRENT_PLAYER = CURRENT_PLAYER == player1 ? player2 : player1;
 }
 
 function takeSquare(square, symbol){
   BOARD[square] = symbol;
   $('#' + square).html(symbol);
+  CURRENT_PLAYER.moves.push(square);
 }
 
 function squareTaken(square){
@@ -137,11 +151,11 @@ function uncover(){
 }
 
 function startGame(){
-  var player1 = new player(false, 'X');
-  var player2 = new player(false, 'O');
+  player1 = new player(false, 'X', 'Player 1');
+  player2 = new player(false, 'O', 'Player 2');
   PLAYERS.push(player1);
   PLAYERS.push(player2);  
-  CURRENT_PLAYER = PLAYERS[0];  
+  CURRENT_PLAYER = player.roll > player2.roll ? player1 : player2;  
   gamePrompt('NEW_GAME');
 }
 
