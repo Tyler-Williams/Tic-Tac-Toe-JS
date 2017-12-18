@@ -1,10 +1,9 @@
+var FRESH_GAME = true;
 var COVERED = false;
 var PLAYERS = [];
 var CURRENT_PLAYER;
 var MOVES = [];
 var BOARD = ['', '', '', '', '', '', '', '', ''];
-var ACITVE = false;
-var NUM_HUMANS = 0;
 var  WIN_COMBINATIONS = [
   [0,1,2],  //Top row
   [3,4,5],  //Middle row
@@ -43,7 +42,7 @@ function addPlayerSelectHandler(){
   $('.player-select').click(function(e){
     e.preventDefault();
     if (e.target.id == '1-player'){
-      PLAYERS[1].cpu = true;
+      player2.cpu = true;
     } 
     gamePrompt('SYMBOL_SELECT');
   });
@@ -57,14 +56,28 @@ function addSymbolSelectHandler(){
   });
 }
 
+function addGameSelectHandler(){
+  $('.game-select').click(function(e){
+    e.preventDefault();
+    if (e.target.id == 'playAgain'){      
+      console.log('playing again...');
+      BOARD = ['', '', '', '', '', '', '', '', ''];
+      player1.moves = [];
+      player2.moves = [];
+      uncover();      
+    } 
+  });
+}
+
 function move(tile){
   console.log(tile + ' was clicked');
   if(!squareTaken(tile)){
     takeSquare(tile, CURRENT_PLAYER.symbol);
-    togglePlayer();
   }
   if (isGameOver()){
     console.log('game over');
+  }else{
+    togglePlayer();
   }
 }
 
@@ -76,6 +89,8 @@ function isGameOver(){
   }else if(winner != null){
     console.log(winner.name + ' has won the game!');
     winner.score += 1;
+    addScore(winner);
+    gamePrompt('GAME_OVER');    
     return true;
   }
     return false;
@@ -101,6 +116,7 @@ function gameIsDraw(){
 
 function togglePlayer(){
   CURRENT_PLAYER = CURRENT_PLAYER == player1 ? player2 : player1;
+  if (CURRENT_PLAYER.cpu){cpuMove();}
 }
 
 function takeSquare(square, symbol){
@@ -155,7 +171,7 @@ function startGame(){
   player2 = new player(false, 'O', 'Player 2');
   PLAYERS.push(player1);
   PLAYERS.push(player2);  
-  CURRENT_PLAYER = player.roll > player2.roll ? player1 : player2;  
+  CURRENT_PLAYER = player1;  
   gamePrompt('NEW_GAME');
 }
 
@@ -174,7 +190,10 @@ function gamePrompt(prompt){
       $('#master-board').html(symbolPrompt);
       addSymbolSelectHandler();
       COVERED = true;
+      break;
     case 'GAME_OVER':
+      $('#master-board').html(gameOverPrompt);
+      addGameSelectHandler();
       break;
     default:
       console.error('gamePrompt was called without a valid arg.')
@@ -214,3 +233,37 @@ const newGamePrompt = function(){
   `;
 }
 
+const gameOverPrompt = function(){
+  return `
+    <div class='col s8 square prompt offset-s2'>
+      <div class='row center-align'>Game Over</div>
+      <div class='row center-align'>Play again or Reset?</div>
+      <div class='row'>
+        <div class='col s3 offset-s2 game-select'>
+          <a id='playAgain' href=''>Play Again</a>
+        </div>
+        <div class='col s3 offset-s2 game-select'>
+          <a id='resetGame' href=''>Reset Game</a>
+        </div>
+      </div>
+  `;
+}
+
+function cpuTileSelect(){
+  var tilePicked = null;
+  while(tilePicked == null || squareTaken(tilePicked)){
+    tilePicked = Math.floor(Math.random() * 9);
+  } 
+  console.log('cpu taking square ' + tilePicked);
+  return tilePicked.toString(); 
+}
+
+function cpuMove(){
+  move(cpuTileSelect());  
+}
+
+function addScore(player){
+  let scoreToChange = player.name == 'Player 1' ? $('#player1Score') : $('#player2Score');
+  scoreToChange.html(player.score.toString());
+  console.log('changing ' + player.name + ' score to ' + player.score);
+}
