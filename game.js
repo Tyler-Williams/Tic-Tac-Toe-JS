@@ -30,14 +30,14 @@ class player{
 $('doccument').ready(function(){
   startGame();
 });
-
+//Add handler to each square after they are created
 function addSquareClickHandler(){  
   $('.square').click(function(e){
     e.preventDefault()
     move(this.id);
   });
 }
-
+//Add handler for button selection
 function addPlayerSelectHandler(){
   $('.player-select').click(function(e){
     e.preventDefault();
@@ -47,7 +47,7 @@ function addPlayerSelectHandler(){
     gamePrompt('SYMBOL_SELECT');
   });
 }
-
+//Add handler for button selection
 function addSymbolSelectHandler(){
   $('.symbol').click(function(e){
     e.preventDefault();
@@ -55,7 +55,7 @@ function addSymbolSelectHandler(){
     uncover();
   });
 }
-
+//Add handler for button selection
 function addGameSelectHandler(){
   $('.game-select').click(function(e){
     e.preventDefault();
@@ -65,10 +65,13 @@ function addGameSelectHandler(){
       player1.moves = [];
       player2.moves = [];
       uncover();      
+    }else if(e.target.id == 'resetGame'){
+      console.log('Resetting game');
+      reset();
     } 
   });
 }
-
+//Handle the move sequence after a tile is selected
 function move(tile){
   console.log(tile + ' was clicked');
   if(!squareTaken(tile)){
@@ -80,22 +83,23 @@ function move(tile){
     togglePlayer();
   }
 }
-
+//Check to see if the game has ended in a draw or player win
 function isGameOver(){
   let winner = playerHasWon();
   if(gameIsDraw()){
     console.log('Game is a draw.');
     return true;
   }else if(winner != null){
+    let prompt = winner.name == 'Player 1' ? 'PLAYER1WINS' : 'PLAYER2WINS';
     console.log(winner.name + ' has won the game!');
     winner.score += 1;
     addScore(winner);
-    gamePrompt('GAME_OVER');    
+    gamePrompt(prompt);    
     return true;
   }
     return false;
 }
-
+//Check to see if a player has won
 function playerHasWon(){
   let winner = null;
   PLAYERS.forEach(function(player){
@@ -107,33 +111,28 @@ function playerHasWon(){
   });
   return winner;
 }
-
+//Check for game draw
 function gameIsDraw(){
   return !playerHasWon() && BOARD.every(function(square){
     return square == 'X' || square == 'O';
   });
 }
-
+//Change players after each move
 function togglePlayer(){
   CURRENT_PLAYER = CURRENT_PLAYER == player1 ? player2 : player1;
   if (CURRENT_PLAYER.cpu){cpuMove();}
 }
-
+//Put the players symbol in the tile they selected
 function takeSquare(square, symbol){
   BOARD[square] = symbol;
   $('#' + square).html(symbol);
   CURRENT_PLAYER.moves.push(square);
 }
-
+//Check the the tile has already been taken
 function squareTaken(square){
   return (BOARD[square] == 'X' || BOARD[square] == 'O');
 }
-
-function cover(){
-  $('#master-board').html(symbolPrompt);
-  COVERED = true;
-}
-
+//Reveal the game board
 function uncover(){
   console.log('uncovering');
   $('#master-board').html(`
@@ -165,7 +164,7 @@ function uncover(){
   COVERED = false;
   addSquareClickHandler();
 }
-
+//Create the players and start the game
 function startGame(){
   player1 = new player(false, 'X', 'Player 1');
   player2 = new player(false, 'O', 'Player 2');
@@ -174,11 +173,15 @@ function startGame(){
   CURRENT_PLAYER = player1;  
   gamePrompt('NEW_GAME');
 }
-
+//Reset the scores and start the game over
 function reset(){  
   PLAYERS = [];
+  BOARD = ['', '', '', '', '', '', '', '', ''];
+  $('#player1Score').html('0');
+  $('#player2Score').html('0');
+  startGame();
 }
-
+//Show a prompt to the user
 function gamePrompt(prompt){
   switch(prompt){
     case 'NEW_GAME':
@@ -195,12 +198,20 @@ function gamePrompt(prompt){
       $('#master-board').html(gameOverPrompt);
       addGameSelectHandler();
       break;
+    case 'PLAYER1WINS':
+      $('#master-board').html(player1WinsPrompt);      
+      addGameSelectHandler();
+      break;
+    case 'PLAYER2WINS':
+      $('#master-board').html(player2WinsPrompt);      
+      addGameSelectHandler();
+      break;
     default:
       console.error('gamePrompt was called without a valid arg.')
       break;
   }
 }
-
+//This is the prompt for the user to select their symbol
 const symbolPrompt = function(){
   return `
     <div class='col s8 square prompt offset-s2'>
@@ -216,7 +227,7 @@ const symbolPrompt = function(){
       </div>
   `;
 }
-
+//This is the prompt for the user to start a new game
 const newGamePrompt = function(){
   return `
     <div class='col s8 square prompt offset-s2'>
@@ -232,11 +243,12 @@ const newGamePrompt = function(){
       </div>
   `;
 }
-
+//This is the prompt when the game ends in a draw
 const gameOverPrompt = function(){
   return `
     <div class='col s8 square prompt offset-s2'>
       <div class='row center-align'>Game Over</div>
+      <div class='row center-align'>Draw!</div>
       <div class='row center-align'>Play again or Reset?</div>
       <div class='row'>
         <div class='col s3 offset-s2 game-select'>
@@ -248,7 +260,41 @@ const gameOverPrompt = function(){
       </div>
   `;
 }
-
+//This is the prompt when the game ends in a player 1 win
+const player1WinsPrompt = function(){
+  return `
+    <div class='col s8 square prompt offset-s2'>
+      <div class='row center-align'>Game Over</div>
+      <div class='row center-align'>Player 1 Wins!</div>
+      <div class='row center-align'>Play again or Reset?</div>
+      <div class='row'>
+        <div class='col s3 offset-s2 game-select'>
+          <a id='playAgain' href=''>Play Again</a>
+        </div>
+        <div class='col s3 offset-s2 game-select'>
+          <a id='resetGame' href=''>Reset Game</a>
+        </div>
+      </div>
+  `;
+}
+//This is the prompt when the game ends in a player 2 win
+const player2WinsPrompt = function(){
+  return `
+    <div class='col s8 square prompt offset-s2'>
+      <div class='row center-align'>Game Over</div>
+      <div class='row center-align'>Player 2 Wins!</div>
+      <div class='row center-align'>Play again or Reset?</div>
+      <div class='row'>
+        <div class='col s3 offset-s2 game-select'>
+          <a id='playAgain' href=''>Play Again</a>
+        </div>
+        <div class='col s3 offset-s2 game-select'>
+          <a id='resetGame' href=''>Reset Game</a>
+        </div>
+      </div>
+  `;
+}
+//Generate a random tile for the computer player to select out of remaining free tiles
 function cpuTileSelect(){
   var tilePicked = null;
   while(tilePicked == null || squareTaken(tilePicked)){
@@ -257,11 +303,11 @@ function cpuTileSelect(){
   console.log('cpu taking square ' + tilePicked);
   return tilePicked.toString(); 
 }
-
+//If the player is the computer have it make a move
 function cpuMove(){
   move(cpuTileSelect());  
 }
-
+//Increase the player's score
 function addScore(player){
   let scoreToChange = player.name == 'Player 1' ? $('#player1Score') : $('#player2Score');
   scoreToChange.html(player.score.toString());
